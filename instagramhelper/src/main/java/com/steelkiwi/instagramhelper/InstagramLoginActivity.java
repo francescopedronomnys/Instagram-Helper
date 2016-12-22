@@ -26,17 +26,18 @@ import static com.steelkiwi.instagramhelper.InstagramHelperConstants.SELF_INFO_U
 
 public class InstagramLoginActivity extends Activity {
     private static final String ACCESS_TOKEN = "access_token";
-    private static final String ERROR        = "error";
-    private static final String EQUAL        = "=";
+    private static final String ERROR = "error";
+    private static final String EQUAL = "=";
 
 
     private static final String TAG = InstagramLoginActivity.class.getSimpleName();
 
-    private WebView     mWebView;
+    private WebView mWebView;
     private AlertDialog progressBar;
 
     private String mAuthUrl;
     private String mRedirectUrl;
+    private boolean mLoadUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +53,7 @@ public class InstagramLoginActivity extends Activity {
         Bundle bundle = getIntent().getExtras();
         mAuthUrl = bundle.getString(InstagramHelperConstants.INSTA_AUTH_URL);
         mRedirectUrl = bundle.getString(InstagramHelperConstants.INSTA_REDIRECT_URL);
+        mLoadUser = bundle.getBoolean(InstagramHelperConstants.INSTA_LOAD_USER, false);
     }
 
     private void setUpWebView() {
@@ -74,6 +76,7 @@ public class InstagramLoginActivity extends Activity {
         mWebView.clearHistory();
         mWebView.clearFormData();
     }
+
     private void finishWithSuccess() {
         setResult(Activity.RESULT_OK, null);
         finish();
@@ -94,7 +97,10 @@ public class InstagramLoginActivity extends Activity {
                 if (url.contains(ACCESS_TOKEN)) {
                     String token[] = url.split(EQUAL);
                     SharedPrefUtils.putToken(InstagramLoginActivity.this, token[1]);
-                    new GetInstagramUserTask().execute();
+                    if (mLoadUser)
+                        new GetInstagramUserTask().execute();
+                    else
+                        finishWithSuccess();
                 } else if (url.contains(ERROR)) {
                     String message[] = url.split(EQUAL);
                     finishWithError(message[message.length - 1]);
@@ -133,10 +139,11 @@ public class InstagramLoginActivity extends Activity {
         protected void onPreExecute() {
             super.onPreExecute();
         }
+
         @Override
         protected Void doInBackground(Void... params) {
             try {
-                URL url = new URL(SELF_INFO_URL+ACCESS_TOKEN_TYPE_DEF
+                URL url = new URL(SELF_INFO_URL + ACCESS_TOKEN_TYPE_DEF
                         + SharedPrefUtils.getToken(InstagramLoginActivity.this));
                 HttpURLConnection conn = (HttpURLConnection) url.openConnection();
 
@@ -157,8 +164,8 @@ public class InstagramLoginActivity extends Activity {
                     Gson gson = new Gson();
 
                     InstagramUser user = gson.fromJson(sb.toString(), InstagramUser.class);
-                    SharedPrefUtils.saveInstagramUser(InstagramLoginActivity.this,user);
-                }else{
+                    SharedPrefUtils.saveInstagramUser(InstagramLoginActivity.this, user);
+                } else {
                     errorHappened = true;
                     finishWithError(ERROR);
                 }
@@ -174,7 +181,7 @@ public class InstagramLoginActivity extends Activity {
         @Override
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
-            if(!errorHappened){
+            if (!errorHappened) {
                 finishWithSuccess();
             }
         }

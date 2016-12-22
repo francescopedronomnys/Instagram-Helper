@@ -5,6 +5,7 @@ public abstract class InstagramHelperConstants {
 
     static final String INSTA_REDIRECT_URL = "insta_redirect_url";
     static final String INSTA_AUTH_URL     = "insta_auth_url";
+    static final String INSTA_LOAD_USER     = "insta_load_user";
 
     //implicit auth
     static final String AUTH_URL              = "https://instagram.com/oauth/authorize/";

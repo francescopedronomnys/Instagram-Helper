@@ -14,6 +14,7 @@ import java.text.MessageFormat;
 import static com.steelkiwi.instagramhelper.InstagramHelperConstants.AUTH_URL;
 import static com.steelkiwi.instagramhelper.InstagramHelperConstants.CLIENT_ID_DEF;
 import static com.steelkiwi.instagramhelper.InstagramHelperConstants.INSTA_AUTH_URL;
+import static com.steelkiwi.instagramhelper.InstagramHelperConstants.INSTA_LOAD_USER;
 import static com.steelkiwi.instagramhelper.InstagramHelperConstants.INSTA_LOGIN;
 import static com.steelkiwi.instagramhelper.InstagramHelperConstants.INSTA_REDIRECT_URL;
 import static com.steelkiwi.instagramhelper.InstagramHelperConstants.REDIRECT_URI_DEF;
@@ -25,11 +26,13 @@ public class InstagramHelper {
     private String clientId;
     private String redirectUri;
     private String scope;
+    private boolean loadUser;
 
-    private InstagramHelper(String clientId, String redirectUri) {
+    private InstagramHelper(String clientId, String redirectUri, String scope, boolean loadUser) {
         this.clientId = clientId;
         this.redirectUri = redirectUri;
         this.scope = scope;
+        this.loadUser = loadUser;
     }
 
     public void loginFromActivity(Activity context) {
@@ -45,12 +48,14 @@ public class InstagramHelper {
     }
 
     private Intent buildIntent(Context context) {
+        //TODO scope is not used
         String authUrl = MessageFormat.format(AUTH_URL + CLIENT_ID_DEF + "{0}" + REDIRECT_URI_DEF + "{1}" + RESPONSE_TYPE_DEF, clientId, redirectUri);
         Intent intent = new Intent(context, InstagramLoginActivity.class);
 
         Bundle bundle = new Bundle();
         bundle.putString(INSTA_AUTH_URL, authUrl);
         bundle.putString(INSTA_REDIRECT_URL, redirectUri);
+        bundle.putBoolean(INSTA_LOAD_USER, loadUser);
         intent.putExtras(bundle);
         return intent;
     }
@@ -63,6 +68,7 @@ public class InstagramHelper {
         private String clientId;
         private String redirectUrl;
         private String scope;
+        private boolean loadUser = false;
 
         public Builder withClientId(String clientId) {
             this.clientId = checkNotNull(clientId, "clientId == null");
@@ -79,8 +85,13 @@ public class InstagramHelper {
             return this;
         }
 
+        public Builder loadInstagramUser(boolean loadUser) {
+            this.loadUser = loadUser;
+            return this;
+        }
+
         public InstagramHelper build() {
-            return new InstagramHelper(clientId, redirectUrl);
+            return new InstagramHelper(clientId, redirectUrl, scope, loadUser);
         }
     }
 }

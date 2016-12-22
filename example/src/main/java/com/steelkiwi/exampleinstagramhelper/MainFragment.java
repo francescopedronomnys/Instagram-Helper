@@ -17,6 +17,7 @@ import com.squareup.picasso.Picasso;
 import com.steelkiwi.instagramhelper.InstagramHelper;
 import com.steelkiwi.instagramhelper.InstagramHelperConstants;
 import com.steelkiwi.instagramhelper.model.InstagramUser;
+import com.steelkiwi.instagramhelper.utils.SharedPrefUtils;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -55,6 +56,7 @@ public class MainFragment extends Fragment {
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == InstagramHelperConstants.INSTA_LOGIN && resultCode == RESULT_OK) {
+            Toast.makeText(getActivity(), "Token is: " + SharedPrefUtils.getToken(getActivity()), Toast.LENGTH_LONG).show();
             InstagramUser user = instagramHelper.getInstagramUser(getActivity());
             loginBtn.setVisibility(View.GONE);
             userInfoPanel.setVisibility(View.VISIBLE);
