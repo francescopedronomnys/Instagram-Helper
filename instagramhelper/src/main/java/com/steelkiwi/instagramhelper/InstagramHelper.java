@@ -1,6 +1,7 @@
 package com.steelkiwi.instagramhelper;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -32,6 +33,18 @@ public class InstagramHelper {
     }
 
     public void loginFromActivity(Activity context) {
+        context.startActivityForResult(buildIntent(context), INSTA_LOGIN);
+    }
+
+    public void loginFromFragment(Fragment fragment) {
+        fragment.startActivityForResult(buildIntent(fragment.getActivity()), INSTA_LOGIN);
+    }
+
+    public void loginFromFragment(android.support.v4.app.Fragment fragment) {
+        fragment.startActivityForResult(buildIntent(fragment.getActivity()), INSTA_LOGIN);
+    }
+
+    private Intent buildIntent(Context context) {
         String authUrl = MessageFormat.format(AUTH_URL + CLIENT_ID_DEF + "{0}" + REDIRECT_URI_DEF + "{1}" + RESPONSE_TYPE_DEF, clientId, redirectUri);
         Intent intent = new Intent(context, InstagramLoginActivity.class);
 
@@ -39,7 +52,7 @@ public class InstagramHelper {
         bundle.putString(INSTA_AUTH_URL, authUrl);
         bundle.putString(INSTA_REDIRECT_URL, redirectUri);
         intent.putExtras(bundle);
-        context.startActivityForResult(intent, INSTA_LOGIN);
+        return intent;
     }
 
     public InstagramUser getInstagramUser(Context context) {
@@ -60,12 +73,12 @@ public class InstagramHelper {
             this.redirectUrl = checkNotNull(redirectUrl, "redirectUrl == null");
             return this;
         }
-        
+
         public Builder withScope(String scope) {
             this.scope = checkNotNull(scope, "scope == null");
             return this;
         }
-        
+
         public InstagramHelper build() {
             return new InstagramHelper(clientId, redirectUrl);
         }
